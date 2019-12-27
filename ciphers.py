@@ -285,3 +285,9 @@ def decryptColumnarTransposition(ciphertext, key):
     correctOrderColumnArr = [""]*len(keyArr)
     for i in range(len(keyArr)):
         correctOrderColumnArr[i] = arr[Z[i]]
+
+    res = ""
+    for i in range(len(keyArr)):
+        for j in range(numRows):
+            res += correctOrderColumnArr[j][i]
+    return res
