@@ -260,21 +260,7 @@ def columnarTransposition(plaintext, key):
     return ''.join(Z)
 
 def decryptColumnarTransposition(ciphertext, key):
-    numrows = len(ciphertext)//len(key)
-    if len(ciphertext) % len(key) != 0:
-        numrows += 1
-
-    keyArr = []
-    for c in key:
-        keyArr.append(c)
-
-    arr = [""]*len(key)
-    i = 0
-    j = 0
-    while (j < len(key)):
-        arr[j] = ciphertext[i:i+numrows+1]
-        i += numrows
-        j += 1
+    numRows = int(math.ceil(len(ciphertext)/len(key)))
 
     relArr = []
     for i in range(len(key)):
@@ -286,12 +272,33 @@ def decryptColumnarTransposition(ciphertext, key):
 
     Z = [x for _,x in sorted(zip(keyArr, relArr))]
 
-    correctOrderColumnArr = [""]*len(keyArr)
-    for i in range(len(keyArr)):
-        correctOrderColumnArr[i] = arr[Z[i]]
+    matrix = [Z]
+    for _ in range(numRows):
+        matrix.append([None]*len(key))
+
+    numNulls = numRows*len(key) - len(ciphertext)
+    nullCount = 0
+    while nullCount < numNulls:
+        matrix[-1][len(key)-nullCount-1] = "_"
+        nullCount += 1
+
+    ciphertextindex = 0
+    colIndex = 0
+    rowIndex = 1
+    print(matrix)
+    print(Z)
+    while ciphertextindex < len(ciphertext):
+        if rowIndex <= numRows and matrix[rowIndex][Z[colIndex]] != '_':
+            matrix[rowIndex][Z[colIndex]] = ciphertext[ciphertextindex]
+            ciphertextindex += 1
+            rowIndex+=1
+        else:
+            rowIndex = 1
+            colIndex += 1
 
     res = ""
-    for i in range(len(keyArr)):
-        for j in range(numrows):
-            res += correctOrderColumnArr[j][i]
+    for row in matrix[1:]:
+        for char in row:
+            if char != "_":
+                res += char
     return res
