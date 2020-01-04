@@ -239,12 +239,16 @@ def decryptSimpleSubstitution(ciphertext, key):
 ################################################################################
 
 def columnarTransposition(plaintext, key):
-    plaintext += "_"*(len(key) - len(plaintext)%len(key))
+
+    plaintext += "_"*(len(key) - (len(plaintext))%len(key))
+    print(plaintext)
+    print(len(plaintext))
 
     arr = [""]*len(key)
     i = 0
     while i < len(plaintext):
-        arr[i%len(key)] += plaintext[i]
+        if plaintext[i] not in string.punctuation and plaintext[i] != " ":
+            arr[i%len(key)] += plaintext[i]
         i += 1
 
     keyArr = []
@@ -256,8 +260,8 @@ def columnarTransposition(plaintext, key):
     return ''.join(Z)
 
 def decryptColumnarTransposition(ciphertext, key):
-    numrows = len(plaintext)//len(key)
-    if len(plaintext) % len(key) != 0:
+    numrows = len(ciphertext)//len(key)
+    if len(ciphertext) % len(key) != 0:
         numrows += 1
 
     keyArr = []
@@ -288,6 +292,6 @@ def decryptColumnarTransposition(ciphertext, key):
 
     res = ""
     for i in range(len(keyArr)):
-        for j in range(numRows):
+        for j in range(numrows):
             res += correctOrderColumnArr[j][i]
     return res
