@@ -347,3 +347,6 @@ def beufort(plaintext, key):
         else:
             res += chr(ord(keyStream[i]) - ord(plaintext[i]) + ord('A'))
     return res
+
+def decryptBeufort(ciphertext, key):
+    return beufort(ciphertext, key)
