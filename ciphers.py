@@ -317,4 +317,18 @@ def autokey(plaintext, key):
     return res
 
 def decryptAutokey(ciphertext, key):
-    pass
+    ciphertext = ciphertext.upper()
+    key = key.upper()
+
+    res = ""
+    keyStream = key
+
+    for i in range(len(ciphertext)):
+        if ord(ciphertext[i]) < ord(keyStream[i]):
+            c = ord('Z') - ord(keyStream[i]) + ord(ciphertext[i]) - ord('A')
+            res += chr(c + ord('A')+1)
+            keyStream += chr(c + ord('A')+1)
+        else:
+            res += chr(ord(ciphertext[i]) - ord(keyStream[i]) + ord('A'))
+            keyStream += chr(ord(ciphertext[i]) - ord(keyStream[i]) + ord('A'))
+    return res
