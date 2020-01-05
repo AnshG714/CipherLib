@@ -311,7 +311,6 @@ def autokey(plaintext, key):
     keyStream = key + plaintext[:len(plaintext) - len(key)]
 
     res = ""
-    print(plaintext)
     for i in range(len(plaintext)):
         res += chr((ord(plaintext[i]) + ord(keyStream[i]) - 2*ord('A'))%26 + ord('A'))
     return res
@@ -331,4 +330,20 @@ def decryptAutokey(ciphertext, key):
         else:
             res += chr(ord(ciphertext[i]) - ord(keyStream[i]) + ord('A'))
             keyStream += chr(ord(ciphertext[i]) - ord(keyStream[i]) + ord('A'))
+    return res
+
+################################################################################
+
+def beufort(plaintext, key):
+    plaintext = plaintext.upper()
+    key = key.upper()
+    keyStream = key*(len(plaintext)//len(key)) + key[:len(plaintext)%len(key)]
+
+    res = ""
+    for i in range(len(plaintext)):
+        if ord(plaintext[i]) > ord(keyStream[i]):
+            c = ord('Z') - ord(plaintext[i]) + ord(keyStream[i]) - ord('A')
+            res += chr(c + ord('A')+1)
+        else:
+            res += chr(ord(keyStream[i]) - ord(plaintext[i]) + ord('A'))
     return res
