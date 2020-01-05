@@ -302,3 +302,19 @@ def decryptColumnarTransposition(ciphertext, key):
             if char != "_":
                 res += char
     return res
+
+################################################################################
+
+def autokey(plaintext, key):
+    plaintext = plaintext.upper()
+    key = key.upper()
+    keyStream = key + plaintext[:len(plaintext) - len(key)]
+
+    res = ""
+    print(plaintext)
+    for i in range(len(plaintext)):
+        res += chr((ord(plaintext[i]) + ord(keyStream[i]) - 2*ord('A'))%26 + ord('A'))
+    return res
+
+def decryptAutokey(ciphertext, key):
+    pass
