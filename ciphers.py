@@ -414,3 +414,30 @@ def decryptRunningKey(ciphertext, key):
         else:
             res += chr(ord(ciphertext[i]) - ord(key[i]) + ord('A'))
     return res
+
+################################################################################
+
+def vigenere(plaintext, key):
+    plaintext = plaintext.upper()
+    key = key.upper()
+
+    keyStream = key*(len(plaintext)//len(key)) + key[:len(plaintext)%len(key)]
+    res = ""
+    for i in range(len(plaintext)):
+        res += chr((ord(plaintext[i]) + ord(keyStream[i]) - 2*ord('A'))%26 + ord('A'))
+    return res
+
+def decryptVigenere(ciphertext, key):
+    ciphertext = ciphertext.upper()
+    key = key.upper()
+
+    keyStream = key*(len(ciphertext)//len(key)) + key[:len(ciphertext)%len(key)]
+
+    res = ""
+    for i in range(len(ciphertext)):
+        if ord(ciphertext[i]) < ord(keyStream[i]):
+            c = ord('Z') - ord(keyStream[i]) + ord(ciphertext[i]) - ord('A')
+            res += chr(c + ord('A')+1)
+        else:
+            res += chr(ord(ciphertext[i]) - ord(keyStream[i]) + ord('A'))
+    return res
