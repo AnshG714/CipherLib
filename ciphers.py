@@ -370,3 +370,47 @@ def decryptPorta(ciphertext, key):
     key = key.upper()
 
     return porta(ciphertext, key)
+
+################################################################################
+
+def runningKey(plaintext, key):
+    #use long key, i.e., len(key) >= len(plaintext)
+
+    plaintext = plaintext.upper()
+    key = key.upper()
+
+    #getting key in correct form
+    keyStream = ""
+    i = 0
+    keyIndex = 0
+    while i < len(plaintext):
+        if key[keyIndex].isalpha():
+            keyStream += key[keyIndex]
+            i += 1
+        keyIndex += 1
+
+    return autokey(plaintext, keyStream)
+
+def decryptRunningKey(ciphertext, key):
+    ciphertext = ciphertext.upper()
+    key = key.upper()
+
+    #getting key in correct form
+    keyStream = ""
+    i = 0
+    keyIndex = 0
+    while i < len(ciphertext):
+        if key[keyIndex].isalpha():
+            keyStream += key[keyIndex]
+            i += 1
+        keyIndex += 1
+
+    res = ""
+
+    for i in range(len(ciphertext)):
+        if ord(ciphertext[i]) < ord(key[i]):
+            c = ord('Z') - ord(key[i]) + ord(ciphertext[i]) - ord('A')
+            res += chr(c + ord('A')+1)
+        else:
+            res += chr(ord(ciphertext[i]) - ord(key[i]) + ord('A'))
+    return res
