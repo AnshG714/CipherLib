@@ -3,6 +3,15 @@ import math
 import random
 
 
+def generateRandomKey():
+    #for actual software
+    s = 'abcdefghiklmnopqrstuvwxyz'
+    l = list(s)
+    random.shuffle(l)
+    return ''.join(l)
+
+################################################################################
+
 def atbash(plaintext):
     res = ""
     for i in range(len(plaintext)):
@@ -173,13 +182,6 @@ def decryptRailFence(ciphertext, numRows):
     return res
 
 ################################################################################
-def generateRandomKey():
-    #for actual software
-    s = 'abcdefghiklmnopqrstuvwxyz'
-    l = list(s)
-    random.shuffle(l)
-    return ''.join(l)
-
 def polybiusSquare(plaintext, key):
     conversionDic = {}
     for index in range(len(key)):
@@ -441,3 +443,49 @@ def decryptVigenere(ciphertext, key):
         else:
             res += chr(ord(ciphertext[i]) - ord(keyStream[i]) + ord('A'))
     return res
+
+################################################################################
+
+def fourSquare(plaintext, key1, key2):
+    plaintext = plaintext.upper()
+    if len(plaintext)%2 == 1:
+        plaintext += "X"
+
+    temp = ""
+    for c in plaintext:
+        if c == 'J':
+            temp += 'I'
+        else:
+            temp += c
+
+    plaintext = temp
+
+    res = ""
+    i = 1
+    while i < len(plaintext):
+        letter1 = plaintext[i-1]
+        letter2 = plaintext[i]
+
+        if ord(letter1) > ord('J'):
+            letter1row = (ord(letter1) - ord('A') - 1)//5
+            letter1col = (ord(letter1) - ord('A') - 1)%5
+        else:
+            letter1row = (ord(letter1) - ord('A'))//5
+            letter1col = (ord(letter1) - ord('A'))%5
+
+        if ord(letter2) > ord('J'):
+            letter2row = (ord(letter2) - ord('A') - 1)//5
+            letter2col = (ord(letter2) - ord('A') - 1)%5
+        else:
+            letter2row = (ord(letter2) - ord('A'))//5
+            letter2col = (ord(letter2) - ord('A'))%5
+
+
+        res += key1[5*letter1row + letter2col]
+        res += key2[5*letter2row + letter1col]
+        i+= 2
+
+    return res
+
+def decryptFourSquare(ciphertext, key1, key2):
+    pass
