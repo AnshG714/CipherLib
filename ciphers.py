@@ -488,4 +488,23 @@ def fourSquare(plaintext, key1, key2):
     return res
 
 def decryptFourSquare(ciphertext, key1, key2):
-    pass
+    alpha = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'
+    res = ""
+    i = 1
+    while i < len(ciphertext):
+        letter1 = ciphertext[i-1]
+        letter2 = ciphertext[i]
+
+        l1index = key1.index(letter1)
+        l2index = key2.index(letter2)
+
+        letter1row = l1index//5
+        letter1col = l1index%5
+        letter2row = l2index//5
+        letter2col = l2index%5
+
+        res += alpha[5*letter1row + letter2col]
+        res += alpha[5*letter2row + letter1col]
+        i+= 2
+
+    return res
