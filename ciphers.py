@@ -1,7 +1,7 @@
 import string
 import math
 import random
-
+import numpy as np
 
 def generateRandomKey():
     #for actual software
@@ -9,6 +9,22 @@ def generateRandomKey():
     l = list(s)
     random.shuffle(l)
     return ''.join(l)
+
+def transform(plaintext):
+    """
+    This function returns a string which transforms the plaintext as follows:
+    1. Removes all the whitespaces and punctuation
+    2. Makes all letters uppercase
+
+    plaintext: The text to transform
+    Precondition: text is a string
+
+    """
+    res = ""
+    for c in plaintext:
+        if c not in string.punctuation and c != " ":
+            res += c.upper()
+    return res
 
 ################################################################################
 
@@ -506,5 +522,32 @@ def decryptFourSquare(ciphertext, key1, key2):
         res += alpha[5*letter1row + letter2col]
         res += alpha[5*letter2row + letter1col]
         i+= 2
+
+    return res
+################################################################################
+
+def hill(plaintext, matrix):
+    n = len(matrix)
+    plaintext = transform(plaintext)
+    for element in matrix:
+        assert type(element) == list
+        assert len(element) == n
+
+    mat = np.array(matrix)
+    if len(plaintext) % n != 0:
+        plaintext += 'X'*(n - len(plaintext)%n)
+
+    res = ""
+    i = 0
+    while i < len(plaintext):
+        substr = plaintext[i:i+n]
+        col = []
+        for c in substr:
+            col.append(ord(c) - ord('A'))
+        a = np.array(col)
+        vector = mat.dot(a) % 26
+        for k in range(len(vector)):
+            res += chr(vector[k] + ord('A'))
+        i += n
 
     return res
