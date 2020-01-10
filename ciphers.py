@@ -2,6 +2,7 @@ import string
 import math
 import random
 import numpy as np
+from exceptions import *
 
 def generateRandomKey():
     #for actual software
@@ -541,13 +542,51 @@ def hill(plaintext, matrix):
     i = 0
     while i < len(plaintext):
         substr = plaintext[i:i+n]
-        col = []
-        for c in substr:
-            col.append(ord(c) - ord('A'))
-        a = np.array(col)
-        vector = mat.dot(a) % 26
-        for k in range(len(vector)):
-            res += chr(vector[k] + ord('A'))
+        res += hillHelper(mat, substr)
         i += n
 
     return res
+
+def decryptHill(ciphertext, matrix):
+    mat = np.array(matrix)
+    n = len(matrix)
+    d = int(round(np.linalg.det(mat), 0)) % 26
+    d_inv = _findDInv(d)
+    invMat = d_inv * np.array(getConjugate(mat)).transpose()
+
+    i = 0
+    res = ""
+    while i < len(ciphertext):
+        substr = ciphertext[i:i+n]
+        res += hillHelper(invMat, substr)
+        i += n
+    return res
+
+def _findDInv(d):
+    for i in range(1, 26):
+        if i*d % 26 == 1:
+            return i
+
+    raise InvalidMatrixException('Invalid matrix - cannot find determinant inverse satisying invariants')
+
+def hillHelper(mat, substr):
+    res = ""
+    col = []
+    for c in substr:
+        col.append(ord(c) - ord('A'))
+    a = np.array(col)
+    vector = mat.dot(a) % 26
+    for k in range(len(vector)):
+        res += chr(vector[k] + ord('A'))
+    return res
+
+def getConjugate(matrix):
+    c = []
+    for i in range(len(matrix)):
+        c.append([None]*len(matrix))
+
+    for i in range(len(matrix)):
+        for j in range(len(matrix)):
+            omitIJMat = np.delete(np.delete(matrix, i, 0), j, 1)
+            c[i][j] = int(round(((-1)**(i+j))*np.linalg.det(omitIJMat), 0))
+    return c
