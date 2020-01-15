@@ -1,7 +1,8 @@
 import string
 import math
 import random
-
+import numpy as np
+from exceptions import *
 
 def generateRandomKey():
     #for actual software
@@ -9,6 +10,22 @@ def generateRandomKey():
     l = list(s)
     random.shuffle(l)
     return ''.join(l)
+
+def transform(plaintext):
+    """
+    This function returns a string which transforms the plaintext as follows:
+    1. Removes all the whitespaces and punctuation
+    2. Makes all letters uppercase
+
+    plaintext: The text to transform
+    Precondition: text is a string
+
+    """
+    res = ""
+    for c in plaintext:
+        if c not in string.punctuation and c != " ":
+            res += c.upper()
+    return res
 
 ################################################################################
 
@@ -506,5 +523,129 @@ def decryptFourSquare(ciphertext, key1, key2):
         res += alpha[5*letter1row + letter2col]
         res += alpha[5*letter2row + letter1col]
         i+= 2
+
+    return res
+################################################################################
+
+def hill(plaintext, matrix):
+    n = len(matrix)
+    plaintext = transform(plaintext)
+    for element in matrix:
+        assert type(element) == list
+        assert len(element) == n
+
+    mat = np.array(matrix)
+    if len(plaintext) % n != 0:
+        plaintext += 'X'*(n - len(plaintext)%n)
+
+    res = ""
+    i = 0
+    while i < len(plaintext):
+        substr = plaintext[i:i+n]
+        res += hillHelper(mat, substr)
+        i += n
+
+    return res
+
+def decryptHill(ciphertext, matrix):
+    mat = np.array(matrix)
+    n = len(matrix)
+    d = int(round(np.linalg.det(mat), 0)) % 26
+    d_inv = _findDInv(d)
+    invMat = d_inv * np.array(getConjugate(mat)).transpose()
+
+    i = 0
+    res = ""
+    while i < len(ciphertext):
+        substr = ciphertext[i:i+n]
+        res += hillHelper(invMat, substr)
+        i += n
+    return res
+
+def _findDInv(d):
+    for i in range(1, 26):
+        if i*d % 26 == 1:
+            return i
+
+    raise InvalidMatrixException('Invalid matrix - cannot find determinant inverse satisying invariants')
+
+def hillHelper(mat, substr):
+    res = ""
+    col = []
+    for c in substr:
+        col.append(ord(c) - ord('A'))
+    a = np.array(col)
+    vector = mat.dot(a) % 26
+    for k in range(len(vector)):
+        res += chr(vector[k] + ord('A'))
+    return res
+
+def getConjugate(matrix):
+    c = []
+    for i in range(len(matrix)):
+        c.append([None]*len(matrix))
+
+    for i in range(len(matrix)):
+        for j in range(len(matrix)):
+            omitIJMat = np.delete(np.delete(matrix, i, 0), j, 1)
+            c[i][j] = int(round(((-1)**(i+j))*np.linalg.det(omitIJMat), 0))
+    return c
+
+################################################################################
+
+def formKeySquare(key):
+    #remove duplicate letters
+    usedLetters = set()
+    keySquare = ""
+    for c in key:
+        if c not in usedLetters:
+            keySquare += c
+            usedLetters.add(c)
+
+    alpha = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'
+
+    for c in alpha:
+        if c not in usedLetters:
+            keySquare += c
+            usedLetters.add(c)
+
+    return keySquare
+
+def playfair(plaintext, key):
+    if len(plaintext) == 0:
+        return ""
+
+    plaintext = transform(plaintext)
+    keySquare = formKeySquare(key)
+    plaintextCopy = ""
+
+    if len(plaintext) % 2 == 1:
+        plaintext += 'X'
+
+    i = 0
+    while i < len(plaintext)-1:
+        if plaintext[i] == plaintext[i+1]:
+            plaintextCopy += plaintext[i] + 'X'
+        else:
+            plaintextCopy += plaintext[i] + plaintext[i+1]
+        i += 2
+
+    res = ""
+
+    for i in range(1, len(plaintextCopy), 2):
+        pair = plaintextCopy[i-1:i+1]
+        index1 = keySquare.index(pair[0])
+        letter1row = index1//5
+        letter1col = index1%5
+        index2 = keySquare.index(pair[1])
+        letter2row = index2//5
+        letter2col = index2%5
+
+        if letter1col != letter2col and letter1row != letter2row:
+            res += keySquare[5*letter1row + letter2col] + keySquare[5*letter2row + letter1col]
+        elif letter1row == letter2row:
+            res += keySquare[5*letter1row + (letter1col + 1)%5] + keySquare[5*letter1row + (letter2col + 1)%5]
+        else:
+            res += keySquare[5*((letter1row+1)%5) + letter1col] + keySquare[5*((letter2row+1)%5) + letter1col]
 
     return res
