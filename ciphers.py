@@ -591,8 +591,6 @@ def getConjugate(matrix):
             c[i][j] = int(round(((-1)**(i+j))*np.linalg.det(omitIJMat), 0))
     return c
 
-################################################################################
-
 def formKeySquare(key):
     #remove duplicate letters
     usedLetters = set()
