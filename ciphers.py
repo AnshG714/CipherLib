@@ -525,6 +525,7 @@ def decryptFourSquare(ciphertext, key1, key2):
         i+= 2
 
     return res
+
 ################################################################################
 
 def hill(plaintext, matrix):
@@ -608,6 +609,8 @@ def formKeySquare(key):
             usedLetters.add(c)
 
     return keySquare
+
+################################################################################
 
 def playfair(plaintext, key):
     if len(plaintext) == 0:
