@@ -592,6 +592,8 @@ def getConjugate(matrix):
             c[i][j] = int(round(((-1)**(i+j))*np.linalg.det(omitIJMat), 0))
     return c
 
+################################################################################
+
 def formKeySquare(key):
     #remove duplicate letters
     usedLetters = set()
@@ -610,7 +612,31 @@ def formKeySquare(key):
 
     return keySquare
 
-################################################################################
+def playfairHelper(text, keySquare, encrypt = True):
+    res = ""
+
+    for i in range(1, len(text), 2):
+        pair = text[i-1:i+1]
+        index1 = keySquare.index(pair[0])
+        letter1row = index1//5
+        letter1col = index1%5
+        index2 = keySquare.index(pair[1])
+        letter2row = index2//5
+        letter2col = index2%5
+
+        if letter1col != letter2col and letter1row != letter2row:
+            res += keySquare[5*letter1row + letter2col] + keySquare[5*letter2row + letter1col]
+        elif letter1row == letter2row:
+            if encrypt:
+                res += keySquare[5*letter1row + (letter1col + 1)%5] + keySquare[5*letter1row + (letter2col + 1)%5]
+            else:
+                res += keySquare[5*letter1row + (letter1col - 1)%5] + keySquare[5*letter1row + (letter2col - 1)%5]
+        else:
+            if encrypt:
+                res += keySquare[5*((letter1row+1)%5) + letter1col] + keySquare[5*((letter2row-1)%5) + letter1col]
+            else:
+                res += keySquare[5*((letter1row-1)%5) + letter1col] + keySquare[5*((letter2row-1)%5) + letter1col]
+    return res
 
 def playfair(plaintext, key):
     if len(plaintext) == 0:
@@ -633,20 +659,9 @@ def playfair(plaintext, key):
 
     res = ""
 
-    for i in range(1, len(plaintextCopy), 2):
-        pair = plaintextCopy[i-1:i+1]
-        index1 = keySquare.index(pair[0])
-        letter1row = index1//5
-        letter1col = index1%5
-        index2 = keySquare.index(pair[1])
-        letter2row = index2//5
-        letter2col = index2%5
+    return playfairHelper(plaintextCopy, keySquare)
 
-        if letter1col != letter2col and letter1row != letter2row:
-            res += keySquare[5*letter1row + letter2col] + keySquare[5*letter2row + letter1col]
-        elif letter1row == letter2row:
-            res += keySquare[5*letter1row + (letter1col + 1)%5] + keySquare[5*letter1row + (letter2col + 1)%5]
-        else:
-            res += keySquare[5*((letter1row+1)%5) + letter1col] + keySquare[5*((letter2row+1)%5) + letter1col]
-
-    return res
+def decryptPlayfair(ciphertext, key):
+    ciphertext = transform(ciphertext)
+    keySquare = formKeySquare(key)
+    return playfairHelper(ciphertext, keySquare, False)
